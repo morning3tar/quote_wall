@@ -67,9 +67,9 @@ export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
 
         setQuotes(data || []);
         onQuotesLoaded?.(data?.length || 0);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching quotes:', err);
-        setError('Failed to load quotes. Please refresh the page.');
+        setError(err.message || 'Failed to load quotes. Please refresh the page.');
       } finally {
         setIsLoading(false);
       }
@@ -103,7 +103,7 @@ export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [onQuotesLoaded]);
+  }, [onQuotesLoaded, quotes.length]);
 
   if (isLoading) {
     return (
