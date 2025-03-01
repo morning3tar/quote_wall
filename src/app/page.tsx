@@ -102,6 +102,41 @@ export default function Home() {
   const [backgroundQuotes, setBackgroundQuotes] = useState<Quote[]>([]);
   const [isMobile, setIsMobile] = useState(false);
 
+  // Effect to fetch initial quote count
+  useEffect(() => {
+    const fetchQuoteCount = async () => {
+      const { count } = await supabase
+        .from('quotes')
+        .select('*', { count: 'exact', head: true });
+      
+      if (count !== null) {
+        setQuotesCount(count);
+      }
+    };
+
+    fetchQuoteCount();
+
+    // Subscribe to quote changes
+    const subscription = supabase
+      .channel('quotes_count')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'quotes',
+        },
+        () => {
+          setQuotesCount(prev => prev + 1);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   useEffect(() => {
     // Check if device is mobile
     const checkMobile = () => {
@@ -120,7 +155,7 @@ export default function Home() {
         .from('quotes')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(isMobile ? 4 : 6); // Back to original quote count
+        .limit(isMobile ? 4 : 6);
       
       if (data) {
         setBackgroundQuotes(data);
