@@ -39,7 +39,7 @@ function formatDateTime(dateString: string) {
     });
 
     return `${formattedDate} at ${time}`;
-  } catch (error) {
+  } catch (_) {
     return '';
   }
 }
@@ -67,9 +67,9 @@ export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
 
         setQuotes(data || []);
         onQuotesLoaded?.(data?.length || 0);
-      } catch (err: any) {
+      } catch (err: Error | unknown) {
         console.error('Error fetching quotes:', err);
-        setError(err.message || 'Failed to load quotes. Please refresh the page.');
+        setError(err instanceof Error ? err.message : 'Failed to load quotes. Please refresh the page.');
       } finally {
         setIsLoading(false);
       }
