@@ -241,7 +241,7 @@ export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit }: QuoteFor
                     whileTap={{ scale: 0.98 }}
                     className="w-full py-3 px-4 bg-[#007AFF] hover:bg-[#0063CC] rounded-full text-white font-medium transition-all duration-200 shadow-lg shadow-blue-200"
                   >
-                    View Quote Wall
+                    View Quotes Wall
                   </motion.button>
                 </div>
               </div>
