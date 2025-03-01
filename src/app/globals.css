@@ -6,8 +6,17 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --app-bg: #f0f2f5;
+  --message-bg: #ffffff;
+  --input-bg: #ffffff;
+  --primary: #007AFF;
+  --secondary: #5856D6;
+  --accent: #34C759;
+  --error: #FF3B30;
+  --text-primary: #1C1C1E;
+  --text-secondary: #8E8E93;
+  --imessage-blue: #007AFF;
+  --imessage-gray: #e9e9eb;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,7 +27,155 @@
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--app-bg);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.quote-wall-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.quote-count {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.message-bubble {
+  position: relative;
+  max-width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0.75rem 1rem;
+  background: var(--imessage-gray);
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  overflow-wrap: break-word;
+}
+
+.message-bubble .quote-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+}
+
+.message-bubble .quote-header[data-rtl="true"] {
+  flex-direction: row-reverse;
+}
+
+.message-bubble .quote-name {
+  font-weight: 600;
+  color: var(--imessage-blue);
+}
+
+.message-bubble .quote-name[dir="rtl"] {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.message-bubble .quote-name[dir="ltr"] {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+.message-bubble .quote-time {
+  font-size: 0.75rem;
+  color: #8e8e93;
+  flex-shrink: 0;
+}
+
+.message-bubble .quote-header[data-rtl="true"] .quote-time {
+  text-align: left;
+}
+
+.message-bubble .quote-header[data-rtl="false"] .quote-time {
+  text-align: right;
+}
+
+.message-bubble .quote-text {
+  color: #000000;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.message-bubble .quote-text[dir="rtl"] {
+  text-align: right;
+}
+
+.message-bubble .quote-text[dir="ltr"] {
+  text-align: left;
+}
+
+.message-input {
+  background: var(--input-bg);
+  border-radius: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.message-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(142, 142, 147, 0.3) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(95, 95, 95, 0.3);
+  border-radius: 20px;
+}
+
+@keyframes typing {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+
+.typing-indicator span {
+  width: 4px;
+  height: 4px;
+  margin: 0 1px;
+  background: var(--text-secondary);
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.typing-indicator span:nth-child(1) { animation: typing 1s infinite; }
+.typing-indicator span:nth-child(2) { animation: typing 1s infinite 0.2s; }
+.typing-indicator span:nth-child(3) { animation: typing 1s infinite 0.4s; }
+
+.gradient-bg {
+  background: linear-gradient(135deg, #E3F2FD 0%, #FAFAFA 100%);
 }
