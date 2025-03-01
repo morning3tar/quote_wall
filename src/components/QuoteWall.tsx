@@ -39,7 +39,7 @@ function formatDateTime(dateString: string) {
     });
 
     return `${formattedDate} at ${time}`;
-  } catch (_) {
+  } catch {
     return '';
   }
 }
