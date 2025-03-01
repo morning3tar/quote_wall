@@ -132,7 +132,7 @@ export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit }: QuoteFor
                 Hi, {formData.full_name}! ✨
               </h2>
               <p className="text-gray-600">
-                Share your thoughts with everyone
+                Share your quote with everyone
               </p>
             </div>
             <div className="space-y-2">
@@ -232,7 +232,7 @@ export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit }: QuoteFor
                   Quote Shared Successfully!
                 </h3>
                 <p className="text-gray-600">
-                  Your message has been added to the quotes wall.
+                  Your quote has been added to the quotes wall.
                 </p>
                 <div className="pt-2">
                   <motion.button
