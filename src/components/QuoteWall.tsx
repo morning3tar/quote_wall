@@ -54,6 +54,11 @@ export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Effect to update quote count whenever quotes change
+  useEffect(() => {
+    onQuotesLoaded?.(quotes.length);
+  }, [quotes.length, onQuotesLoaded]);
+
   useEffect(() => {
     // Fetch initial quotes
     const fetchQuotes = async () => {
@@ -66,7 +71,6 @@ export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
         if (supabaseError) throw supabaseError;
 
         setQuotes(data || []);
-        onQuotesLoaded?.(data?.length || 0);
       } catch (err: Error | unknown) {
         console.error('Error fetching quotes:', err);
         setError(err instanceof Error ? err.message : 'Failed to load quotes. Please refresh the page.');
@@ -92,10 +96,6 @@ export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
             const newQuotes = [payload.new as Quote, ...current];
             return newQuotes;
           });
-          // Call onQuotesLoaded after state update
-          setTimeout(() => {
-            onQuotesLoaded?.(quotes.length + 1);
-          }, 0);
         }
       )
       .subscribe();
@@ -103,7 +103,7 @@ export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [onQuotesLoaded, quotes.length]);
+  }, []);  // Remove quotes.length and onQuotesLoaded from dependencies
 
   if (isLoading) {
     return (
