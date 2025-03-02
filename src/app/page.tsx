@@ -279,7 +279,7 @@ export default function Home() {
       </div>
 
       <div className="w-full h-full flex items-center justify-center px-4 relative z-10">
-        <div className="w-full max-w-6xl mx-auto relative">
+        <div className="w-full max-w-6xl mx-auto relative -mt-5 md:-mt-16">
           <AnimatePresence initial={false} mode="wait">
             {!showQuotes ? (
               <motion.div
@@ -293,7 +293,6 @@ export default function Home() {
                   <QuoteForm 
                     onQuoteAdded={() => setQuotesCount((prev) => prev + 1)}
                     onSuccessfulSubmit={() => setShowQuotes(true)}
-                    quotesCount={quotesCount}
                   />
                   <motion.div
                     initial={{ opacity: 1 }}
