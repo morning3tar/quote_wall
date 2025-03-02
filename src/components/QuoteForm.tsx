@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import type { FormData } from '@/types';
+import Image from 'next/image';
 
 function isRTL(text: string) {
   const rtlRegex = /[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]/;
@@ -11,9 +12,10 @@ function isRTL(text: string) {
 interface QuoteFormProps {
   onQuoteAdded?: () => void;
   onSuccessfulSubmit?: () => void;
+  quotesCount: number;
 }
 
-export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit }: QuoteFormProps) {
+export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit, quotesCount }: QuoteFormProps) {
   const [formData, setFormData] = useState<FormData>({
     full_name: '',
     quote: '',
@@ -69,16 +71,29 @@ export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit }: QuoteFor
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             onSubmit={handleSubmit}
-            className="space-y-8"
+            className="space-y-6"
           >
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-semibold text-gray-900">
-              Welcome to Nowruz Quotes Wall
-              </h2>
-              <p className="text-gray-600">
-              Submit your best quote and stand a chance to win a prize! 🏆
-              </p>
-              <div className="space-y-3 mt-4">
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className="relative w-24 h-24 rounded-full overflow-hidden bg-white shadow-lg">
+                  <Image
+                    src="/isu-logo.png"
+                    alt="ISU Logo"
+                    fill
+                    className="object-contain p-2"
+                    priority
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <h2 className="text-2xl font-semibold text-gray-900">
+                  Welcome to Nowruz Quotes Wall
+                </h2>
+                <p className="text-gray-600">
+                  Submit your best quote and stand a chance to win a prize! 🏆
+                </p>
+              </div>
+              <div className="space-y-2">
                 <p className="text-gray-600 text-left">
                   1️⃣ Enter your full name to get started.
                 </p>

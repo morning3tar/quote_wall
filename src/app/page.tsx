@@ -281,6 +281,7 @@ export default function Home() {
                   <QuoteForm 
                     onQuoteAdded={() => setQuotesCount((prev) => prev + 1)}
                     onSuccessfulSubmit={() => setShowQuotes(true)}
+                    quotesCount={quotesCount}
                   />
                   <motion.div
                     initial={{ opacity: 1 }}
@@ -292,7 +293,7 @@ export default function Home() {
                       whileTap={{ scale: 0.98 }}
                       className="inline-flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 bg-white hover:bg-gray-50 rounded-full text-primary text-sm md:text-base font-medium transition-all duration-200 shadow-sm hover:shadow-md border border-gray-100"
                     >
-                      View All Quotes
+                      View Quotes Wall
                       {quotesCount > 0 && (
                         <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
                           {quotesCount}
@@ -324,7 +325,7 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <div className="absolute bottom-1 left-0 right-0 text-center">
+        <div className="absolute bottom-2 left-0 right-0 text-center">
           <p className="text-white/60 text-sm">
             Created by 
             <span className="font-medium text-white hover:text-white/90 transition-colors"> RM</span> 

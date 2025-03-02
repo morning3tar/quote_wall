@@ -139,7 +139,7 @@ export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
       <div className="quote-wall-header p-4 md:p-6 flex flex-col items-center">
         <h2 className="text-xl font-semibold text-gray-900 mb-1">Quotes Wall</h2>
         <span className="quote-count">
-          {quotes.length} {quotes.length === 1 ? 'Quote' : 'Quote'}
+          {quotes.length} {quotes.length === 1 ? 'Quote' : 'Quotes'}
         </span>
       </div>
       <div className="p-4 md:p-6 max-h-[600px] overflow-y-auto custom-scrollbar bg-white/95">
