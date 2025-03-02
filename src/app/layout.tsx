@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Event Quote Wall",
-  description: "Share your thoughts and see them appear on the wall in real-time!",
+  title: "ISU Nowruz Quotes Wall",
+  description: "Share your quotes and see them appear on the wall in real-time!",
 };
 
 export default function RootLayout({

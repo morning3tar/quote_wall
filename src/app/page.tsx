@@ -19,25 +19,29 @@ function isRTL(text: string) {
 }
 
 function FloatingQuote({ quote, index, total }: { quote: Quote; index: number; total: number }) {
-  const randomDelay = index * -4;
-  const duration = 20 + Math.random() * 10;
+  // Adjust delay and duration based on total quotes
+  const baseDelay = -2;
+  const randomDelay = (index % Math.max(Math.floor(total / 3), 1)) * baseDelay;
+  const duration = 25 + (Math.random() * 15);
 
-  // Calculate horizontal position based on index and total quotes
-  const section = 100 / total; // Divide screen into sections
-  const baseX = section * index; // Base position for this quote
-  const variance = section * 0.3; // Allow 30% variance within section
-  const xPos = baseX + (Math.random() * variance - variance/2); // Add random variance
+  // Improved horizontal position calculation
+  const screenSegments = Math.max(Math.ceil(total / 3), 1);
+  const segmentWidth = 100 / screenSegments;
+  const segmentIndex = index % screenSegments;
+  const baseX = segmentWidth * segmentIndex;
+  const variance = segmentWidth * 0.4;
+  const xPos = baseX + (Math.random() * variance - variance/2);
 
-  // Fixed width quotes for better control
+  // Adjusted size classes for better long quote handling
   const sizeClasses = {
-    sm: 'w-[260px] md:w-[300px]',
-    md: 'w-[280px] md:w-[350px]',
-    lg: 'w-[300px] md:w-[400px]'
+    sm: 'w-[220px] md:w-[280px]',
+    md: 'w-[260px] md:w-[320px]',
+    lg: 'w-[300px] md:w-[380px]'
   };
 
-  // Adjust size thresholds for better quote distribution
+  // Adjust size thresholds and add height classes
   const size = quote.quote.length > 200 ? 'lg' : quote.quote.length > 100 ? 'md' : 'sm';
-
+  
   return (
     <motion.div
       initial={{ 
@@ -69,7 +73,7 @@ function FloatingQuote({ quote, index, total }: { quote: Quote; index: number; t
       <div 
         className={`bg-white/20 backdrop-blur-md rounded-xl md:rounded-3xl p-3 md:p-6 border border-white/30 ${sizeClasses[size]}`}
       >
-        <div className="max-h-[35vh] overflow-y-auto custom-scrollbar">
+        <div className="max-h-[45vh] md:max-h-[50vh] overflow-y-auto custom-scrollbar">
           <p 
             className="font-medium break-words text-white text-sm md:text-base leading-relaxed"
             dir={isRTL(quote.quote) ? 'rtl' : 'ltr'}
@@ -101,6 +105,8 @@ export default function Home() {
   const [quotesCount, setQuotesCount] = useState(0);
   const [backgroundQuotes, setBackgroundQuotes] = useState<Quote[]>([]);
   const [isMobile, setIsMobile] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rotationTimer, setRotationTimer] = useState<NodeJS.Timeout | null>(null);
 
   // Effect to fetch initial quote count
   useEffect(() => {
@@ -149,20 +155,42 @@ export default function Home() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Effect to rotate through quotes periodically
   useEffect(() => {
-    const fetchBackgroundQuotes = async () => {
+    const displayQuotesPerPage = isMobile ? 12 : 24;
+    
+    const fetchQuotesPage = async () => {
+      const { data: totalQuotes } = await supabase
+        .from('quotes')
+        .select('count')
+        .single();
+      
+      const totalPages = Math.ceil((totalQuotes?.count || 0) / displayQuotesPerPage);
+      
       const { data } = await supabase
         .from('quotes')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(isMobile ? 4 : 6);
+        .range(currentPage * displayQuotesPerPage, (currentPage + 1) * displayQuotesPerPage - 1);
       
       if (data) {
         setBackgroundQuotes(data);
+        
+        // Clear existing timer
+        if (rotationTimer) {
+          clearTimeout(rotationTimer);
+        }
+        
+        // Set new timer for rotation
+        const timer = setTimeout(() => {
+          setCurrentPage(current => (current + 1) % totalPages);
+        }, 30000); // Rotate every 30 seconds
+        
+        setRotationTimer(timer);
       }
     };
 
-    fetchBackgroundQuotes();
+    fetchQuotesPage();
 
     // Subscribe to new quotes
     const subscription = supabase
@@ -174,19 +202,28 @@ export default function Home() {
           schema: 'public',
           table: 'quotes',
         },
-        (payload) => {
-          setBackgroundQuotes((current) => {
-            const newQuotes = [payload.new as Quote, ...current];
-            return newQuotes.slice(0, isMobile ? 4 : 6);
-          });
+        async (payload) => {
+          // Fetch the current page again to maintain rotation order
+          const { data: currentData } = await supabase
+            .from('quotes')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .range(currentPage * displayQuotesPerPage, (currentPage + 1) * displayQuotesPerPage - 1);
+
+          if (currentData) {
+            setBackgroundQuotes(currentData);
+          }
         }
       )
       .subscribe();
 
     return () => {
+      if (rotationTimer) {
+        clearTimeout(rotationTimer);
+      }
       subscription.unsubscribe();
     };
-  }, [isMobile]);
+  }, [isMobile, currentPage]);
 
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
