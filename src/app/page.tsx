@@ -170,8 +170,7 @@ export default function Home() {
       const { data } = await supabase
         .from('quotes')
         .select('*')
-        .order('created_at', { ascending: false })
-        .range(currentPage * displayQuotesPerPage, (currentPage + 1) * displayQuotesPerPage - 1);
+        .order('created_at', { ascending: false });
       
       if (data) {
         setBackgroundQuotes(data);
@@ -202,16 +201,15 @@ export default function Home() {
           schema: 'public',
           table: 'quotes',
         },
-        async (payload) => {
+        async () => {
           // Fetch the current page again to maintain rotation order
-          const { data: currentData } = await supabase
+          const { data } = await supabase
             .from('quotes')
             .select('*')
-            .order('created_at', { ascending: false })
-            .range(currentPage * displayQuotesPerPage, (currentPage + 1) * displayQuotesPerPage - 1);
+            .order('created_at', { ascending: false });
 
-          if (currentData) {
-            setBackgroundQuotes(currentData);
+          if (data) {
+            setBackgroundQuotes(data);
           }
         }
       )
@@ -224,6 +222,20 @@ export default function Home() {
       subscription.unsubscribe();
     };
   }, [isMobile, currentPage]);
+
+  useEffect(() => {
+    const rotationInterval = setInterval(() => {
+      setCurrentPage((prevIndex) => (prevIndex + 1) % backgroundQuotes.length);
+    }, 5000);
+
+    setRotationTimer(rotationInterval);
+
+    return () => {
+      if (rotationInterval) {
+        clearInterval(rotationInterval);
+      }
+    };
+  }, [backgroundQuotes.length]);
 
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">

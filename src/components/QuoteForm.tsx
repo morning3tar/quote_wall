@@ -12,10 +12,9 @@ function isRTL(text: string) {
 interface QuoteFormProps {
   onQuoteAdded?: () => void;
   onSuccessfulSubmit?: () => void;
-  quotesCount: number;
 }
 
-export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit, quotesCount }: QuoteFormProps) {
+export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit }: QuoteFormProps) {
   const [formData, setFormData] = useState<FormData>({
     full_name: '',
     quote: '',
