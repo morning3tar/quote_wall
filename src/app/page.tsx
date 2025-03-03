@@ -306,8 +306,8 @@ export default function Home() {
                   style={{
                     background: `
                       linear-gradient(
-                        rgba(255, 255, 255, 0.82), 
-                        rgba(255, 255, 255, 0.82)
+                        rgba(255, 255, 255, 0.83), 
+                        rgba(255, 255, 255, 0.83)
                       ),
                       url('/nowruz-bg.jpg')
                     `,
