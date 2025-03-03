@@ -304,15 +304,16 @@ export default function Home() {
                 <div 
                   className="glass-panel rounded-xl md:rounded-2xl p-6 md:p-8 relative overflow-hidden"
                   style={{
-                    background: `
+                    backgroundImage: `
                       linear-gradient(
-                        rgba(255, 255, 255, 0.83), 
-                        rgba(255, 255, 255, 0.83)
+                        rgba(255, 255, 255, 0.82), 
+                        rgba(255, 255, 255, 0.82)
                       ),
                       url('/nowruz-bg.jpg')
                     `,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
                     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
                     border: '1px solid rgba(255, 255, 255, 0.4)'
                   }}
