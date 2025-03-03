@@ -238,9 +238,21 @@ export default function Home() {
   }, [backgroundQuotes.length]);
 
   return (
-    <main className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
+    <main className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-pink-950 via-rose-900 to-purple-900">
       {/* Background floating quotes */}
-      <div className="fixed inset-0 overflow-hidden bg-[radial-gradient(ellipse_at_center,_rgba(0,0,255,0.15)_0%,_rgba(0,0,0,0.2)_100%)]">
+      <div className="fixed inset-0 overflow-hidden">
+        {/* Add a subtle pattern overlay */}
+        <div className="absolute inset-0" 
+          style={{
+            backgroundImage: `
+              radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.1) 100%),
+              linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.05) 75%),
+              linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.05) 75%)
+            `,
+            backgroundSize: '100% 100%, 60px 60px, 60px 60px',
+            backgroundPosition: '0 0, 0 0, 30px 30px'
+          }}
+        />
         <style jsx global>{`
           html, body {
             position: fixed;
@@ -289,29 +301,46 @@ export default function Home() {
                 exit={{ opacity: 1 }}
                 className="w-full max-w-[340px] md:max-w-md mx-auto"
               >
-                <div className="glass-panel rounded-xl md:rounded-2xl p-6 md:p-8">
-                  <QuoteForm 
-                    onQuoteAdded={() => setQuotesCount((prev) => prev + 1)}
-                    onSuccessfulSubmit={() => setShowQuotes(true)}
-                  />
-                  <motion.div
-                    initial={{ opacity: 1 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-6 md:mt-8 text-center"
-                  >
-                    <motion.button
-                      onClick={() => setShowQuotes(true)}
-                      whileTap={{ scale: 0.98 }}
-                      className="inline-flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 bg-white hover:bg-gray-50 rounded-full text-primary text-sm md:text-base font-medium transition-all duration-200 shadow-sm hover:shadow-md border border-gray-100"
+                <div 
+                  className="glass-panel rounded-xl md:rounded-2xl p-6 md:p-8 relative overflow-hidden"
+                  style={{
+                    background: `
+                      linear-gradient(
+                        rgba(255, 255, 255, 0.82), 
+                        rgba(255, 255, 255, 0.82)
+                      ),
+                      url('/nowruz-bg.jpg')
+                    `,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.4)'
+                  }}
+                >
+                  <div className="relative z-10">
+                    <QuoteForm 
+                      onQuoteAdded={() => setQuotesCount((prev) => prev + 1)}
+                      onSuccessfulSubmit={() => setShowQuotes(true)}
+                    />
+                    <motion.div
+                      initial={{ opacity: 1 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-6 md:mt-8 text-center"
                     >
-                      View Quotes Wall
-                      {quotesCount > 0 && (
-                        <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
-                          {quotesCount}
-                        </span>
-                      )}
-                    </motion.button>
-                  </motion.div>
+                      <motion.button
+                        onClick={() => setShowQuotes(true)}
+                        whileTap={{ scale: 0.98 }}
+                        className="inline-flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 bg-white hover:bg-gray-50 rounded-full text-primary text-sm md:text-base font-medium transition-all duration-200 shadow-sm hover:shadow-md border border-gray-100"
+                      >
+                        View Quotes Wall
+                        {quotesCount > 0 && (
+                          <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
+                            {quotesCount}
+                          </span>
+                        )}
+                      </motion.button>
+                    </motion.div>
+                  </div>
                 </div>
               </motion.div>
             ) : (
