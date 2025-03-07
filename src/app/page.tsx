@@ -246,15 +246,9 @@ export default function Home() {
           style={{
             backgroundImage: `
               radial-gradient(circle at center, rgba(255,255,255,0.15) 0%, rgba(219,172,222,0.1) 100%),
-              linear-gradient(120deg, rgba(255,182,255,0.2) 0%, rgba(107,182,255,0.2) 100%),
-              repeating-linear-gradient(60deg, 
-                rgba(255,255,255,0) 0%, 
-                rgba(255,255,255,0.05) 5%,
-                rgba(255,255,255,0) 10%
-              )
+              repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 8px)
             `,
-            backgroundSize: '100% 100%, 100% 100%, 200% 200%',
-            animation: 'aurora 15s linear infinite'
+            backgroundSize: '100% 100%, 16px 16px'
           }}
         />
         <style jsx global>{`
