@@ -245,12 +245,16 @@ export default function Home() {
         <div className="absolute inset-0" 
           style={{
             backgroundImage: `
-              radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.1) 100%),
-              linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.05) 75%),
-              linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.05) 75%)
+              radial-gradient(circle at center, rgba(255,255,255,0.15) 0%, rgba(219,172,222,0.1) 100%),
+              linear-gradient(120deg, rgba(255,182,255,0.2) 0%, rgba(107,182,255,0.2) 100%),
+              repeating-linear-gradient(60deg, 
+                rgba(255,255,255,0) 0%, 
+                rgba(255,255,255,0.05) 5%,
+                rgba(255,255,255,0) 10%
+              )
             `,
-            backgroundSize: '100% 100%, 60px 60px, 60px 60px',
-            backgroundPosition: '0 0, 0 0, 30px 30px'
+            backgroundSize: '100% 100%, 100% 100%, 200% 200%',
+            animation: 'aurora 15s linear infinite'
           }}
         />
         <style jsx global>{`
