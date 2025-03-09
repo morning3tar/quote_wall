@@ -9,8 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@supabase/auth-helpers-nextjs": "^0.10.0",
-    "@supabase/supabase-js": "^2.49.1",
+    "firebase": "^11.4.0",
     "framer-motion": "^12.4.7",
     "next": "15.2.0",
     "qrcode.react": "^4.2.0",

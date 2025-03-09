@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '@/lib/supabase';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import type { Quote } from '@/types';
 
 interface QuoteWallProps {
   onQuotesLoaded?: (count: number) => void;
 }
 
-function formatDateTime(dateString: string) {
+function formatDateTime(timestamp: any) {
   try {
-    const date = new Date(dateString);
+    const date = timestamp?.toDate() || new Date();
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -60,50 +61,36 @@ export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
   }, [quotes.length, onQuotesLoaded]);
 
   useEffect(() => {
-    // Fetch initial quotes
-    const fetchQuotes = async () => {
-      try {
-        const { data, error: supabaseError } = await supabase
-          .from('quotes')
-          .select('*')
-          .order('created_at', { ascending: false });
+    try {
+      // Create a query for quotes ordered by timestamp
+      const q = query(
+        collection(db, 'quotes'),
+        orderBy('created_at', 'desc')
+      );
 
-        if (supabaseError) throw supabaseError;
-
-        setQuotes(data || []);
-      } catch (err: Error | unknown) {
-        console.error('Error fetching quotes:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load quotes. Please refresh the page.');
-      } finally {
+      // Set up real-time listener
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const quotesData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          created_at: doc.data().created_at
+        })) as Quote[];
+        
+        setQuotes(quotesData);
         setIsLoading(false);
-      }
-    };
+      }, (err) => {
+        console.error('Error fetching quotes:', err);
+        setError('Failed to load quotes. Please refresh the page.');
+        setIsLoading(false);
+      });
 
-    fetchQuotes();
-
-    // Subscribe to new quotes
-    const subscription = supabase
-      .channel('quotes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'quotes',
-        },
-        (payload) => {
-          setQuotes((current) => {
-            const newQuotes = [payload.new as Quote, ...current];
-            return newQuotes;
-          });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);  // Remove quotes.length and onQuotesLoaded from dependencies
+      return () => unsubscribe();
+    } catch (err) {
+      console.error('Error setting up quotes listener:', err);
+      setError('Failed to load quotes. Please refresh the page.');
+      setIsLoading(false);
+    }
+  }, []);
 
   if (isLoading) {
     return (

@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '@/lib/supabase';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import type { Quote } from '@/types';
 
 const QuoteForm = dynamic(() => import('@/components/QuoteForm'), {
@@ -108,39 +109,15 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(0);
   const [rotationTimer, setRotationTimer] = useState<NodeJS.Timeout | null>(null);
 
-  // Effect to fetch initial quote count
+  // Effect to fetch initial quote count and set up real-time listener
   useEffect(() => {
-    const fetchQuoteCount = async () => {
-      const { count } = await supabase
-        .from('quotes')
-        .select('*', { count: 'exact', head: true });
-      
-      if (count !== null) {
-        setQuotesCount(count);
-      }
-    };
+    const q = query(collection(db, 'quotes'));
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setQuotesCount(snapshot.size);
+    });
 
-    fetchQuoteCount();
-
-    // Subscribe to quote changes
-    const subscription = supabase
-      .channel('quotes_count')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'quotes',
-        },
-        () => {
-          setQuotesCount(prev => prev + 1);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -159,67 +136,39 @@ export default function Home() {
   useEffect(() => {
     const displayQuotesPerPage = isMobile ? 12 : 24;
     
-    const fetchQuotesPage = async () => {
-      const { data: totalQuotes } = await supabase
-        .from('quotes')
-        .select('count')
-        .single();
+    const q = query(
+      collection(db, 'quotes'),
+      orderBy('created_at', 'desc')
+    );
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const quotes = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        created_at: doc.data().created_at
+      })) as Quote[];
       
-      const totalPages = Math.ceil((totalQuotes?.count || 0) / displayQuotesPerPage);
+      setBackgroundQuotes(quotes);
       
-      const { data } = await supabase
-        .from('quotes')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (data) {
-        setBackgroundQuotes(data);
-        
-        // Clear existing timer
-        if (rotationTimer) {
-          clearTimeout(rotationTimer);
-        }
-        
-        // Set new timer for rotation
-        const timer = setTimeout(() => {
-          setCurrentPage(current => (current + 1) % totalPages);
-        }, 30000); // Rotate every 30 seconds
-        
-        setRotationTimer(timer);
+      // Clear existing timer
+      if (rotationTimer) {
+        clearTimeout(rotationTimer);
       }
-    };
-
-    fetchQuotesPage();
-
-    // Subscribe to new quotes
-    const subscription = supabase
-      .channel('quotes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'quotes',
-        },
-        async () => {
-          // Fetch the current page again to maintain rotation order
-          const { data } = await supabase
-            .from('quotes')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-          if (data) {
-            setBackgroundQuotes(data);
-          }
-        }
-      )
-      .subscribe();
+      
+      // Set new timer for rotation
+      const totalPages = Math.ceil(quotes.length / displayQuotesPerPage);
+      const timer = setTimeout(() => {
+        setCurrentPage(current => (current + 1) % totalPages);
+      }, 30000); // Rotate every 30 seconds
+      
+      setRotationTimer(timer);
+    });
 
     return () => {
       if (rotationTimer) {
         clearTimeout(rotationTimer);
       }
-      subscription.unsubscribe();
+      unsubscribe();
     };
   }, [isMobile, currentPage]);
 

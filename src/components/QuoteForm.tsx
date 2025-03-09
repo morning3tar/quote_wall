@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '@/lib/supabase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import type { FormData } from '@/types';
 import Image from 'next/image';
 
@@ -35,16 +36,11 @@ export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit }: QuoteFor
     setError(null);
 
     try {
-      const { error: supabaseError } = await supabase
-        .from('quotes')
-        .insert([
-          {
-            full_name: formData.full_name.trim(),
-            quote: formData.quote.trim(),
-          },
-        ]);
-
-      if (supabaseError) throw supabaseError;
+      await addDoc(collection(db, 'quotes'), {
+        full_name: formData.full_name.trim(),
+        quote: formData.quote.trim(),
+        created_at: serverTimestamp()
+      });
 
       onQuoteAdded?.();
       setShowSuccessModal(true);

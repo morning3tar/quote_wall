@@ -1,6 +1,6 @@
 # Quote Wall
 
-A real-time quote sharing application built with Next.js and Supabase.
+A real-time quote sharing application built with Next.js and Firebase.
 
 ## Features
 
@@ -13,7 +13,7 @@ A real-time quote sharing application built with Next.js and Supabase.
 ## Tech Stack
 
 - Next.js
-- Supabase
+- Firebase
 - TailwindCSS
 - Framer Motion
 
@@ -24,9 +24,16 @@ A real-time quote sharing application built with Next.js and Supabase.
    ```bash
    npm install
    ```
-3. Create a `.env.local` file based on `.env.example`
-4. Add your Supabase credentials to `.env.local`
-5. Deploy to Vercel:
+3. Create a `.env.local` file with your Firebase configuration:
+   ```
+   NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+   NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+   ```
+4. Deploy to Vercel:
    ```bash
    npx vercel
    ```
