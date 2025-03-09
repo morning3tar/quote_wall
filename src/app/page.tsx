@@ -108,13 +108,28 @@ export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [rotationTimer, setRotationTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Effect to fetch initial quote count and set up real-time listener
   useEffect(() => {
-    const q = query(collection(db, 'quotes'));
+    const q = query(
+      collection(db, 'quotes'),
+      orderBy('created_at', 'desc')
+    );
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setQuotesCount(snapshot.size);
+      const quotes = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        created_at: doc.data().created_at
+      })) as Quote[];
+      
+      setBackgroundQuotes(quotes);
+      setQuotesCount(quotes.length);
+      setIsLoading(false);
+    }, (error) => {
+      console.error('Error fetching quotes:', error);
+      setIsLoading(false);
     });
 
     return () => unsubscribe();
@@ -227,14 +242,24 @@ export default function Home() {
             padding-right: 3px;
           }
         `}</style>
-        {backgroundQuotes.map((quote, index) => (
-          <FloatingQuote 
-            key={quote.id} 
-            quote={quote} 
-            index={index}
-            total={backgroundQuotes.length}
-          />
-        ))}
+        {isLoading ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        ) : (
+          backgroundQuotes.map((quote, index) => (
+            <FloatingQuote 
+              key={quote.id} 
+              quote={quote} 
+              index={index}
+              total={backgroundQuotes.length}
+            />
+          ))
+        )}
       </div>
 
       <div className="w-full h-full flex items-center justify-center px-4 relative z-10">
