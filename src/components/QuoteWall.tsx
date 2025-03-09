@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Quote } from '@/types';
 
@@ -8,7 +8,7 @@ interface QuoteWallProps {
   onQuotesLoaded?: (count: number) => void;
 }
 
-function formatDateTime(timestamp: any) {
+function formatDateTime(timestamp: Timestamp | null) {
   try {
     const date = timestamp?.toDate() || new Date();
     const today = new Date();
