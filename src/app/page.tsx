@@ -20,27 +20,25 @@ function isRTL(text: string) {
 }
 
 function FloatingQuote({ quote, index, total }: { quote: Quote; index: number; total: number }) {
-  // Adjust delay and duration based on total quotes
-  const baseDelay = -2;
-  const randomDelay = (index % Math.max(Math.floor(total / 3), 1)) * baseDelay;
-  const duration = 25 + (Math.random() * 15);
+  // Slower timing with better spacing
+  const baseDelay = index * 2; // More delay between quotes
+  const duration = 40; // Much slower movement
 
-  // Improved horizontal position calculation
-  const screenSegments = Math.max(Math.ceil(total / 3), 1);
-  const segmentWidth = 100 / screenSegments;
-  const segmentIndex = index % screenSegments;
-  const baseX = segmentWidth * segmentIndex;
-  const variance = segmentWidth * 0.4;
-  const xPos = baseX + (Math.random() * variance - variance/2);
+  // Better horizontal spacing
+  const columns = Math.min(Math.ceil(total / 4), 6); // Max 6 columns
+  const column = index % columns;
+  const xPos = (100 / (columns + 1)) * (column + 1); // Even spacing with margins
 
-  // Adjusted size classes for better long quote handling
+  // Vertical spacing
+  const row = Math.floor(index / columns);
+  const yStart = 120 + (row * 20); // Stagger start positions
+  
   const sizeClasses = {
     sm: 'w-[220px] md:w-[280px]',
     md: 'w-[260px] md:w-[320px]',
     lg: 'w-[300px] md:w-[380px]'
   };
 
-  // Adjust size thresholds and add height classes
   const size = quote.quote.length > 200 ? 'lg' : quote.quote.length > 100 ? 'md' : 'sm';
   
   return (
@@ -48,27 +46,28 @@ function FloatingQuote({ quote, index, total }: { quote: Quote; index: number; t
       initial={{ 
         opacity: 0,
         x: `${xPos}vw`,
-        y: '120vh',
-        scale: 1
+        y: `${yStart}vh`,
       }}
       animate={{ 
         opacity: [0, 1, 1, 0],
         x: `${xPos}vw`,
-        y: ['120vh', '-20vh'],
-        scale: 1
+        y: [`${yStart}vh`, '-20vh'],
       }}
       transition={{
         duration,
         repeat: Infinity,
-        delay: randomDelay,
-        ease: "linear",
+        delay: baseDelay,
+        ease: [0.4, 0, 0.2, 1],
         times: [0, 0.1, 0.9, 1]
       }}
       className="fixed pointer-events-none select-none"
       style={{
         filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))',
-        willChange: 'transform',
-        transform: 'translateX(-50%)'
+        willChange: 'transform, opacity',
+        transform: 'translateX(-50%)',
+        left: 0,
+        top: 0,
+        zIndex: Math.floor(index / columns) // Layer quotes by row
       }}
     >
       <div 
