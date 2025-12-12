@@ -6,6 +6,7 @@ import type { Quote } from '@/types';
 
 interface QuoteWallProps {
   onQuotesLoaded?: (count: number) => void;
+  onQuoteSelected?: (quote: Quote, index: number) => void;
 }
 
 function formatDateTime(timestamp: Timestamp | null) {
@@ -50,10 +51,11 @@ function isRTL(text: string) {
   return rtlRegex.test(text);
 }
 
-export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
+export default function QuoteWall({ onQuotesLoaded, onQuoteSelected }: QuoteWallProps) {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const handleQuoteSelected = onQuoteSelected ?? (() => {});
 
   // Effect to update quote count whenever quotes change
   useEffect(() => {
@@ -145,13 +147,14 @@ export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
       </div>
       <div className="p-4 md:p-6 max-h-[600px] overflow-y-auto custom-scrollbar">
         <AnimatePresence initial={false}>
-          {quotes.map((quote) => (
+          {quotes.map((quote, index) => (
             <motion.div
               key={quote.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="mb-6"
+              className="mb-6 cursor-pointer"
+              onClick={() => handleQuoteSelected(quote, index)}
             >
               <div className="message-bubble">
                 <div 

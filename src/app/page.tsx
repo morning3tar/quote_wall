@@ -423,7 +423,16 @@ export default function Home() {
                 exit={{ opacity: 1 }}
                 className="relative w-full"
               >
-                <QuoteWall onQuotesLoaded={setQuotesCount} />
+                <QuoteWall 
+                  onQuotesLoaded={setQuotesCount} 
+                  onQuoteSelected={(quote) => {
+                    const idx = backgroundQuotes.findIndex(q => q.id === quote.id);
+                    if (idx >= 0) {
+                      setCurrentQuoteIndex(idx);
+                      setPresentationMode(!isMobile);
+                    }
+                  }} 
+                />
                 <motion.button
                   onClick={() => setShowQuotes(false)}
                   whileTap={{ scale: 0.98 }}
