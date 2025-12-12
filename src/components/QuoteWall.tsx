@@ -75,7 +75,7 @@ export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
           ...doc.data(),
           created_at: doc.data().created_at
         })) as Quote[];
-        
+
         setQuotes(quotesData);
         setIsLoading(false);
       }, (err) => {

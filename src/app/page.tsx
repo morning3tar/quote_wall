@@ -7,6 +7,43 @@ import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Quote } from '@/types';
 
+// Background image configuration
+// Set to a path string (e.g., '/nowruz-bg.jpg') to use an image, or null for default gradient
+const BACKGROUND_IMAGE: string | null = '/Afra_Art_Gallery-Yalda5.png';
+// Available options:
+// - null (default gradient)
+// - '/nowruz-bg.jpg'
+// - '/Afra_Art_Gallery-Yalda5.png'
+// - Any other image path in the public folder
+
+// Background overlay darkness (0 = transparent, 1 = fully black)
+// Adjust this to make floating quotes more visible (higher = darker overlay)
+const BACKGROUND_OVERLAY_OPACITY = 0.31;
+
+// Floating quote bubble color configuration
+// Format: rgba(red, green, blue, opacity)
+// Examples:
+// - Dark: 'rgba(0, 0, 0, 0.75)' (black, 75% opacity)
+// - Purple: 'rgba(88, 28, 135, 0.8)' (purple, 80% opacity)
+// - Blue: 'rgba(30, 58, 138, 0.8)' (blue, 80% opacity)
+// - Dark blue: 'rgba(15, 23, 42, 0.85)' (dark blue, 85% opacity)
+// - Brown: 'rgba(68, 47, 28, 0.8)' (brown, 80% opacity)
+const FLOATING_QUOTE_BG_COLOR = 'rgba(77, 57, 57, 0.58)';
+
+// Presentation mode background configuration
+// Set to a path string (e.g., '/nowruz-bg.jpg') to use an image, or null for default gradient
+const PRESENTATION_BACKGROUND: string | null = '/Afra_Art_Gallery-Yalda5.png';
+// Available options:
+// - null (default dark gradient)
+// - '/nowruz-bg.jpg'
+// - '/Afra_Art_Gallery-Yalda5.png'
+// - Any other image path in the public folder
+// - CSS gradient string (e.g., 'linear-gradient(to bottom right, #1a1a2e, #16213e, #0f3460)')
+
+// Presentation mode overlay darkness (0 = transparent, 1 = fully black)
+// Adjust this to make quotes more visible over the background (higher = darker overlay)
+const PRESENTATION_OVERLAY_OPACITY = 0.35;
+
 const QuoteForm = dynamic(() => import('@/components/QuoteForm'), {
   ssr: false,
 });
@@ -62,7 +99,7 @@ function FloatingQuote({ quote, index, total }: { quote: Quote; index: number; t
       }}
       className="fixed pointer-events-none select-none"
       style={{
-        filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))',
+        filter: 'drop-shadow(0 8px 24px rgba(0, 0, 0, 0.5))',
         willChange: 'transform, opacity',
         transform: 'translateX(-50%)',
         left: 0,
@@ -71,7 +108,14 @@ function FloatingQuote({ quote, index, total }: { quote: Quote; index: number; t
       }}
     >
       <div 
-        className={`bg-white/20 backdrop-blur-md rounded-xl md:rounded-3xl p-3 md:p-6 border border-white/30 ${sizeClasses[size]}`}
+        className={`rounded-xl md:rounded-3xl p-3 md:p-6 border-2 ${sizeClasses[size]}`}
+        style={{
+          background: FLOATING_QUOTE_BG_COLOR,
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderColor: 'rgba(255, 255, 255, 0.3)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        }}
       >
         <div className="max-h-[45vh] md:max-h-[50vh] overflow-y-auto custom-scrollbar">
           <p 
@@ -79,20 +123,27 @@ function FloatingQuote({ quote, index, total }: { quote: Quote; index: number; t
             dir={isRTL(quote.quote) ? 'rtl' : 'ltr'}
             style={{ 
               textAlign: isRTL(quote.quote) ? 'right' : 'left',
-              direction: isRTL(quote.quote) ? 'rtl' : 'ltr'
+              direction: isRTL(quote.quote) ? 'rtl' : 'ltr',
+              textShadow: '0 2px 8px rgba(0, 0, 0, 0.8), 0 1px 2px rgba(0, 0, 0, 0.9)',
             }}
           >
             {quote.quote}
           </p>
           <p 
-            className="text-white/80 text-xs md:text-sm mt-2 md:mt-3 italic"
+            className="text-white/90 text-xs md:text-sm mt-2 md:mt-3 italic font-medium"
             dir={isRTL(quote.full_name) ? 'rtl' : 'ltr'}
             style={{ 
               textAlign: isRTL(quote.full_name) ? 'right' : 'left',
-              direction: isRTL(quote.full_name) ? 'rtl' : 'ltr'
+              direction: isRTL(quote.full_name) ? 'rtl' : 'ltr',
+              textShadow: '0 2px 6px rgba(0, 0, 0, 0.8), 0 1px 2px rgba(0, 0, 0, 0.9)',
             }}
           >
-            — {quote.full_name}
+            <span className="inline-flex items-center gap-1.5 md:gap-2">
+              <svg className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ opacity: 0.9 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              {quote.full_name}
+            </span>
           </p>
         </div>
       </div>
@@ -108,6 +159,8 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(0);
   const [rotationTimer, setRotationTimer] = useState<NodeJS.Timeout | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [presentationMode, setPresentationMode] = useState(false);
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
 
   // Effect to fetch initial quote count and set up real-time listener
   useEffect(() => {
@@ -137,14 +190,19 @@ export default function Home() {
   useEffect(() => {
     // Check if device is mobile
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      // Exit presentation mode if resized to mobile
+      if (mobile && presentationMode) {
+        setPresentationMode(false);
+      }
     };
     
     checkMobile();
     window.addEventListener('resize', checkMobile);
     
     return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  }, [presentationMode]);
 
   // Effect to rotate through quotes periodically
   useEffect(() => {
@@ -200,10 +258,52 @@ export default function Home() {
     };
   }, [backgroundQuotes.length]);
 
+  // Keyboard navigation for presentation mode
+  useEffect(() => {
+    if (!presentationMode || backgroundQuotes.length === 0) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        setCurrentQuoteIndex((prev) => 
+          prev > 0 ? prev - 1 : backgroundQuotes.length - 1
+        );
+      } else if (e.key === 'ArrowRight') {
+        setCurrentQuoteIndex((prev) => 
+          prev < backgroundQuotes.length - 1 ? prev + 1 : 0
+        );
+      } else if (e.key === 'Escape') {
+        setPresentationMode(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [presentationMode, backgroundQuotes.length]);
+
   return (
-    <main className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-pink-950 via-rose-900 to-purple-900">
+    <main 
+      className="fixed inset-0 flex items-center justify-center"
+      style={{
+        backgroundImage: BACKGROUND_IMAGE 
+          ? `url(${BACKGROUND_IMAGE})`
+          : 'linear-gradient(to bottom right, rgb(88, 28, 135), rgb(190, 24, 93), rgb(126, 34, 206))',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      {/* Dark overlay to make background less visible */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundColor: BACKGROUND_IMAGE 
+            ? `rgba(0, 0, 0, ${BACKGROUND_OVERLAY_OPACITY})` 
+            : 'rgba(0, 0, 0, 0.2)',
+        }}
+      />
+
       {/* Background floating quotes */}
-      <div className="fixed inset-0 overflow-hidden">
+      <div className="fixed inset-0 overflow-hidden z-10">
         {/* Add a subtle pattern overlay */}
         <div className="absolute inset-0" 
           style={{
@@ -280,7 +380,7 @@ export default function Home() {
                         rgba(255, 255, 255, 0.82), 
                         rgba(255, 255, 255, 0.82)
                       ),
-                      url('/nowruz-bg.jpg')
+                      url('/Afra_Art_Gallery-Yalda5.png')
                     `,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
@@ -327,10 +427,26 @@ export default function Home() {
                 <motion.button
                   onClick={() => setShowQuotes(false)}
                   whileTap={{ scale: 0.98 }}
-                  className="absolute top-7 left-4 px-3 md:px-4 py-2 bg-white hover:bg-gray-50 rounded-full text-primary text-xs md:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 md:gap-2 shadow-sm hover:shadow-md border border-gray-100"
+                  className="absolute top-7 left-4 px-3 md:px-4 py-2 bg-white hover:bg-gray-50 rounded-full text-primary text-xs md:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 md:gap-2 shadow-sm hover:shadow-md border border-gray-100 z-20"
                 >
                   ← Back to Form
                 </motion.button>
+                {!isMobile && (
+                  <motion.button
+                    onClick={() => {
+                      setPresentationMode(true);
+                      setCurrentQuoteIndex(0);
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                    className="absolute top-7 right-4 px-3 md:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs md:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 md:gap-2 shadow-sm hover:shadow-md z-20"
+                    style={{ color: '#ffffff' }}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#ffffff' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <span style={{ color: '#ffffff' }}>Presentation Mode</span>
+                  </motion.button>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -344,6 +460,111 @@ export default function Home() {
           </p>
         </div>
       </div>
+
+      {/* Presentation Mode - Full Screen (Desktop only) */}
+      <AnimatePresence>
+        {presentationMode && !isMobile && backgroundQuotes.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{
+              backgroundImage: PRESENTATION_BACKGROUND 
+                ? (PRESENTATION_BACKGROUND.startsWith('linear-gradient') || PRESENTATION_BACKGROUND.startsWith('radial-gradient'))
+                  ? PRESENTATION_BACKGROUND
+                  : `url(${PRESENTATION_BACKGROUND})`
+                : 'linear-gradient(to bottom right, rgb(17, 24, 39), rgb(31, 41, 55), rgb(17, 24, 39))',
+              backgroundSize: PRESENTATION_BACKGROUND && !PRESENTATION_BACKGROUND.startsWith('linear-gradient') && !PRESENTATION_BACKGROUND.startsWith('radial-gradient')
+                ? 'cover'
+                : 'auto',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+            }}
+          >
+            {/* Dark overlay for presentation mode */}
+            {PRESENTATION_BACKGROUND && !PRESENTATION_BACKGROUND.startsWith('linear-gradient') && !PRESENTATION_BACKGROUND.startsWith('radial-gradient') && (
+              <div 
+                className="fixed inset-0 z-0"
+                style={{
+                  backgroundColor: `rgba(0, 0, 0, ${PRESENTATION_OVERLAY_OPACITY})`,
+                }}
+              />
+            )}
+
+            {/* Exit button */}
+            <button
+              onClick={() => setPresentationMode(false)}
+              className="absolute top-2 right-2 md:top-4 md:right-4 px-3 py-2 md:px-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-lg text-xs md:text-sm font-medium transition-all duration-200 flex items-center gap-1 md:gap-2 border border-white/20 z-10"
+            >
+              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span className="hidden sm:inline">Exit</span>
+            </button>
+
+            {/* Quote Display */}
+            <motion.div
+              key={currentQuoteIndex}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+              className="w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-16 flex flex-col"
+              style={{ maxHeight: '90vh' }}
+            >
+              <div className="bg-white/10 backdrop-blur-lg rounded-2xl md:rounded-3xl p-6 sm:p-8 md:p-12 lg:p-16 border-2 border-white/20 shadow-2xl flex-1 flex flex-col overflow-hidden">
+                <div className="text-center flex-1 flex flex-col justify-center overflow-y-auto custom-scrollbar pr-2">
+                  <p
+                    className="text-white text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-medium leading-relaxed mb-4 sm:mb-6 md:mb-8 lg:mb-12 px-2"
+                    dir={isRTL(backgroundQuotes[currentQuoteIndex].quote) ? 'rtl' : 'ltr'}
+                    style={{
+                      textAlign: isRTL(backgroundQuotes[currentQuoteIndex].quote) ? 'right' : 'left',
+                      direction: isRTL(backgroundQuotes[currentQuoteIndex].quote) ? 'rtl' : 'ltr',
+                      textShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
+                    }}
+                  >
+                    {backgroundQuotes[currentQuoteIndex].quote}
+                  </p>
+                  <p
+                    className="text-white/90 text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl italic font-medium mt-4 sm:mt-6 flex-shrink-0"
+                    dir={isRTL(backgroundQuotes[currentQuoteIndex].full_name) ? 'rtl' : 'ltr'}
+                    style={{
+                      textAlign: isRTL(backgroundQuotes[currentQuoteIndex].full_name) ? 'right' : 'left',
+                      direction: isRTL(backgroundQuotes[currentQuoteIndex].full_name) ? 'rtl' : 'ltr',
+                      textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
+                    }}
+                  >
+                    <span className="inline-flex items-center gap-2 sm:gap-3">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ opacity: 0.9 }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      {backgroundQuotes[currentQuoteIndex].full_name}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Quote counter */}
+              <div className="text-center mt-4 sm:mt-6 flex-shrink-0">
+                <p className="text-white/60 text-sm sm:text-base md:text-lg">
+                  {currentQuoteIndex + 1} / {backgroundQuotes.length}
+                </p>
+              </div>
+            </motion.div>
+
+
+            {/* Keyboard navigation hint */}
+            <div className="absolute bottom-4 left-0 right-0 text-center pointer-events-none hidden md:block">
+              <p className="text-white/40 text-sm">
+              Created by
+              <span className="font-medium text-white hover:text-white/90 transition-colors"> RM</span>
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </main>
   );
 }

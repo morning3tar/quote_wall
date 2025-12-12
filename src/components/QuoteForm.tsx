@@ -72,7 +72,7 @@ export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit }: QuoteFor
               <div className="flex justify-center">
                 <div className="relative w-24 h-24 rounded-full overflow-hidden bg-white shadow-lg">
                   <Image
-                    src="/isu-logo.png"
+                    src="/isu.png"
                     alt="ISU Logo"
                     fill
                     className="object-contain p-2"
@@ -82,7 +82,7 @@ export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit }: QuoteFor
               </div>
               <div className="space-y-1.5">
                 <h2 className="text-2xl font-semibold text-gray-900">
-                  Welcome to Nowruz Quotes Wall
+                  Welcome to Yalda Quotes Wall
                 </h2>
                 <p className="text-gray-900 font-normal">
                   Submit your best quote and stand a chance to win a prize! 🏆
