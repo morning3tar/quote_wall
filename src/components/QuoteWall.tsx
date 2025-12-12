@@ -122,6 +122,20 @@ export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 1, scale: 1 }}
       className="glass-panel rounded-2xl overflow-hidden w-full"
+      style={{
+        backgroundImage: `
+          linear-gradient(
+            rgba(255, 255, 255, 0.82), 
+            rgba(255, 255, 255, 0.82)
+          ),
+          url('/Afra_Art_Gallery-Yalda5.png')
+        `,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+        border: '1px solid rgba(255, 255, 255, 0.4)'
+      }}
     >
       <div className="quote-wall-header p-4 md:p-6 flex flex-col items-center">
         <h2 className="text-xl font-semibold text-gray-900 mb-1">Quotes Wall</h2>
@@ -129,7 +143,7 @@ export default function QuoteWall({ onQuotesLoaded }: QuoteWallProps) {
           {quotes.length} {quotes.length === 1 ? 'Quote' : 'Quotes'}
         </span>
       </div>
-      <div className="p-4 md:p-6 max-h-[600px] overflow-y-auto custom-scrollbar bg-white/95">
+      <div className="p-4 md:p-6 max-h-[600px] overflow-y-auto custom-scrollbar">
         <AnimatePresence initial={false}>
           {quotes.map((quote) => (
             <motion.div
