@@ -72,7 +72,7 @@ export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit }: QuoteFor
               <div className="flex justify-center">
                 <div className="relative w-24 h-24 rounded-full overflow-hidden bg-white shadow-lg">
                   <Image
-                    src="/isu.png"
+                    src="/ISU.png"
                     alt="ISU Logo"
                     fill
                     className="object-contain p-2"
