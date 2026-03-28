@@ -82,10 +82,10 @@ export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit }: QuoteFor
               </div>
               <div className="space-y-1.5">
                 <h2 className="text-2xl font-semibold text-gray-900">
-                  Welcome to Yalda Quotes Wall
+                  Welcome to Nowruz Quotes Wall
                 </h2>
                 <p className="text-gray-900 font-normal">
-                  Submit your best quote and stand a chance to win a prize! 🏆
+                  Write a message of hope, unity, or support for the people of Iran 💚🤍❤️
                 </p>
               </div>
               <div className="space-y-2">
@@ -93,10 +93,10 @@ export default function QuoteForm({ onQuoteAdded, onSuccessfulSubmit }: QuoteFor
                   1️⃣ Enter your full name to get started.
                 </p>
                 <p className="text-gray-900 text-left font-normal">
-                  2️⃣ Write your best quote! be original, inspiring, or funny!
+                  2️⃣ Write your best message! Be original and inspiring.
                 </p>
                 <p className="text-gray-900 text-left font-normal">
-                  3️⃣ Your quote will be displayed on the live quote wall for everyone to see.
+                  3️⃣ Your message will be displayed on the live quote wall for everyone to see.
                 </p>
               </div>
             </div>
